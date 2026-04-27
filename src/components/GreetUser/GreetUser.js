@@ -17,11 +17,19 @@ const PEOPLE_DATA = [
     music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
   },
   {
-    names: ["Lucky", "Bestie", "Luckster"],
+    names: ["Nitin", "Nitu", "Software Developer"],
+    description: "The intellectual backbone of our group. Always questioning, always learning.",
+    image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1759417711/10472085_264601560412229_7802592663526121160_n_tgqx2a.jpg", // Replace with your actual photo links
+    quote: "Friend who stands by you in the storm.",
+    relation: "Friend & Mentor",
+    music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
+  },
+  {
+    names: ["Lucky", "Yashoda", "Radha","Papa", "My love"],
     description: "The most reliable friend. Through thick and thin, we coded and conquered.",
-    image: "https://via.placeholder.com/150",
+    image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1759414700/IMG_20250204_133603_lxjddo.jpg",
     quote: "Friends are the family we choose.",
-    relation: "Best Friend",
+    relation: "Mother(Yashoda), Daughter, Radha & Best Friend",
     music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
   }
 ];
