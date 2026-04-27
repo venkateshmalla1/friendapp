@@ -17,7 +17,7 @@ const PEOPLE_DATA = [
     music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
   },
   {
-    names: ["Nitin", "Nitu", "Software Developer"],
+    names: ["Nithin", "Nitu", "Software Developer"],
     description: "The intellectual backbone of our group. Always questioning, always learning.",
     image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1759417711/10472085_264601560412229_7802592663526121160_n_tgqx2a.jpg", // Replace with your actual photo links
     quote: "Friend who stands by you in the storm.",
