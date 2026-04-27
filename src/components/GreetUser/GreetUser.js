@@ -138,7 +138,7 @@ const GreetUser = () => {
       {showModal && match && (
         <ModalOverlay>
           <ModalContent>
-            <img src={match.image} alt="User" style={{ width: '120px', height: '120px', borderRadius: '50%', border: '2px solid #00ff41' }} />
+            <img src={match.image} alt="User" style={{ width: '200px', height: '200px', border: '2px solid #00ff41' }} />
             <h2 style={{ color: '#fff', margin: '15px 0' }}>
               <Typewriter
                 options={{ strings: match.names, autoStart: true, loop: true }}
