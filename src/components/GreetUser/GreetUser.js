@@ -1,38 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Typewriter from 'typewriter-effect';
+// src/components/GreetUser/GreetUser.js
+import React, { useState, useEffect, useRef } from "react";
+import Typewriter from "typewriter-effect";
 import {
   MainContainer, SearchBox, NameInput, ActionButton,
   TerminalBox, ProgressBarContainer, ProgressFill,
   ModalOverlay, ModalContent, BlinkingQuote, CloseButton
 } from './styledComponents';
-
-// 1. DATA CONFIGURATION
-const PEOPLE_DATA = [
-  {
-    names: ["Divakar", "Divi", "Philosopher"],
-    description: "The intellectual backbone of our group. Always questioning, always learning.",
-    image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1760851215/1758778319750_gozytr.jpg", // Replace with your actual photo links
-    quote: "Wisdom begins in wonder.",
-    relation: "Brother & Mentor",
-    music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
-  },
-  {
-    names: ["Nithin", "Nitu", "Software Developer"],
-    description: "The intellectual backbone of our group. Always questioning, always learning.",
-    image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1759417711/10472085_264601560412229_7802592663526121160_n_tgqx2a.jpg", // Replace with your actual photo links
-    quote: "Friend who stands by you in the storm.",
-    relation: "Friend & Mentor",
-    music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
-  },
-  {
-    names: ["Lucky", "Yashoda", "Radha","Papa", "My love"],
-    description: "The most reliable friend. Through thick and thin, we coded and conquered.",
-    image: "https://res.cloudinary.com/dk6x9gpyl/image/upload/v1759414700/IMG_20250204_133603_lxjddo.jpg",
-    quote: "Friends are the family we choose.",
-    relation: "Mother(Yashoda), Daughter, Radha & Best Friend",
-    music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-  }
-];
+import { getPeople, getPersonByName } from '../../api';
 
 const DEFAULT_MUSIC = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3";
 
@@ -52,66 +26,118 @@ const GreetUser = () => {
   const [match, setMatch] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
-  
-  const audioRef = useRef(new Audio());
+  const [people, setPeople] = useState([]);
 
-  // Handle Search Trigger
-  const startProcess = () => {
-    const cleanInput = input.trim().toLowerCase();
-    const found = PEOPLE_DATA.find(p => p.names.some(n => n.toLowerCase() === cleanInput));
-    
-    setMatch(found || { 
-      names: [input], 
-      description: "A guest in my digital world.", 
-      quote: "Welcome, stranger!", 
-      relation: "Visitor",
-      music: DEFAULT_MUSIC 
-    });
+  const audioRef = useRef(null);
 
-    audioRef.current.src = found ? found.music : DEFAULT_MUSIC;
-    audioRef.current.volume = 0;
-    audioRef.current.play().catch(e => console.log("Autoplay blocked: ", e));
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.loop = true;
+    audioRef.current.preload = "auto";
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await getPeople();
+        setPeople(res.data || []);
+      } catch (err) {
+        console.error("Failed to load people", err);
+        setPeople([]);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  const startProcess = async () => {
+    const cleanInput = input.trim();
+    if (!cleanInput) return;
 
     setIsProcessing(true);
     setProgress(0);
     setHasCompleted(false);
+    setShowModal(false);
+
+    // Try backend name lookup (case-insensitive route on server)
+    try {
+      const res = await getPersonByName(cleanInput);
+      setMatch(res.data);
+      audioRef.current.src = res.data.music || DEFAULT_MUSIC;
+    } catch (err) {
+      // Not found -> stranger fallback
+      setMatch({
+        names: [cleanInput],
+        description: "A guest in my digital world.",
+        quote: "Welcome, stranger!",
+        relation: "Visitor",
+        image: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
+        music: DEFAULT_MUSIC
+      });
+      audioRef.current.src = DEFAULT_MUSIC;
+    }
+
+    audioRef.current.volume = 0;
+    audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+
+    // start progress simulation
+    setTimeout(() => setProgress(6), 120);
   };
 
-  // Progress and Audio Fading Effect
   useEffect(() => {
-    let timer;
-    if (isProcessing && progress < 100) {
-      timer = setTimeout(() => {
-        const inc = Math.random() > 0.5 ? 10 : 5;
-        const newProgress = Math.min(progress + inc, 100);
-        setProgress(newProgress);
-        audioRef.current.volume = newProgress / 100;
-        
-        if (newProgress === 100) {
-          setTimeout(() => {
-            setIsProcessing(false);
-            setShowModal(true);
-            setHasCompleted(true);
-          }, 800);
-        }
-      }, 300);
+    if (!isProcessing) return;
+    if (progress >= 100) {
+      setIsProcessing(false);
+      setShowModal(true);
+      setHasCompleted(true);
+      return;
     }
+
+    const timer = setTimeout(() => {
+      const inc = Math.random() > 0.5 ? 10 : 6;
+      const next = Math.min(100, progress + inc);
+      setProgress(next);
+      if (audioRef.current) {
+        audioRef.current.volume = Math.min(1, next / 100);
+      }
+    }, 300 + Math.random() * 200);
+
     return () => clearTimeout(timer);
   }, [progress, isProcessing]);
 
+  useEffect(() => {
+    if (!isProcessing && progress >= 100) {
+      const t = setTimeout(() => setShowModal(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [isProcessing, progress]);
+
+  const closeModal = () => {
+    setShowModal(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <MainContainer>
-      <h1 style={{ color: '#00ff41', marginBottom: '10px' }}>FRIENDSHIP_PROTOCOL</h1>
-      <p style={{ color: '#666', marginBottom: '30px' }}>Enter identity to begin authentication.</p>
+      <h1 style={{ color: "#00ff41", marginBottom: 8 }}>FRIENDSHIP_PROTOCOL</h1>
+      <p style={{ color: "#9fb3c8", marginBottom: 18 }}>Enter identity to begin authentication.</p>
 
       <SearchBox>
-        <NameInput 
-          placeholder="Name / Nickname" 
+        <NameInput
+          placeholder="Name or Nickname"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={isProcessing}
         />
-        <ActionButton onClick={startProcess} disabled={isProcessing || !input}>
+        <ActionButton onClick={startProcess} disabled={isProcessing || !input.trim()}>
           {isProcessing ? "PROCESSING..." : "AUTHENTICATE"}
         </ActionButton>
       </SearchBox>
@@ -121,43 +147,81 @@ const GreetUser = () => {
           <ProgressBarContainer>
             <ProgressFill width={progress} />
           </ProgressBarContainer>
+
           <TerminalBox>
             {SYSTEM_LOGS.filter(l => progress >= l.p).map((l, i) => (
-              <div key={i} style={{ color: '#00ff41', marginBottom: '5px' }}>{l.t}</div>
+              <div key={i}>{l.t}</div>
             ))}
           </TerminalBox>
-          <img 
-            src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueW94dmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxxSAtI5Tgc/giphy.gif" 
-            alt="Audio" 
-            style={{ width: '60px', marginTop: '20px', filter: 'hue-rotate(90deg)' }}
-          />
+
+          <div style={{ marginTop: 12 }}>
+            <img
+              src="https://media.giphy.com/media/3o7TKMGpxxSAtI5Tgc/giphy.gif"
+              alt="processing"
+              style={{ width: 56, borderRadius: 8, filter: "hue-rotate(80deg)" }}
+            />
+          </div>
         </>
       )}
 
-      {/* POPUP REVEAL */}
       {showModal && match && (
         <ModalOverlay>
           <ModalContent>
-            <img src={match.image} alt="User" style={{ width: '200px', height: '200px', border: '2px solid #00ff41' }} />
-            <h2 style={{ color: '#fff', margin: '15px 0' }}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <img
+                src={match.image}
+                alt={match.names?.[0] || "profile"}
+                style={{ width: 200, height: 200, objectFit: "cover", borderRadius: 12, border: "2px solid #00ff41" }}
+              />
+            </div>
+
+            <h2 style={{ color: "#fff", marginTop: 14 }}>
               <Typewriter
-                options={{ strings: match.names, autoStart: true, loop: true }}
+                options={{
+                  strings: match.names || [input],
+                  autoStart: true,
+                  loop: true,
+                  delay: 60,
+                  deleteSpeed: 30
+                }}
               />
             </h2>
-            <div style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.8rem' }}>{match.relation}</div>
+
+            <div style={{ color: "#9fb3c8", textTransform: "uppercase", fontSize: 12, marginTop: 6 }}>
+              {match.relation}
+            </div>
+
             <BlinkingQuote>"{match.quote}"</BlinkingQuote>
-            <p style={{ color: '#ccc', lineHeight: '1.5' }}>{match.description}</p>
-            <CloseButton onClick={() => setShowModal(false)}>ACCESS TERMINATED (CLOSE)</CloseButton>
+
+            <p style={{ color: "#cfe8f5", lineHeight: 1.5, marginTop: 8 }}>{match.description}</p>
+
+            <CloseButton onClick={closeModal}>ACCESS TERMINATED CLOSE</CloseButton>
           </ModalContent>
         </ModalOverlay>
       )}
 
-      {/* PERSISTENT VIEW AFTER MODAL CLOSES */}
-      {hasCompleted && !showModal && (
-        <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <h3 style={{color: '#00ff41'}}>IDENTITY CONFIRMED</h3>
-            <p>Welcome back, {match.names[0]}. Memory banks are open.</p>
-            <button onClick={() => setHasCompleted(false)} style={{background: 'none', border: '1px solid #333', color: '#666', padding: '5px 10px', marginTop: '10px', cursor: 'pointer'}}>Log Out</button>
+      {hasCompleted && !showModal && match && (
+        <div style={{ textAlign: "center", marginTop: 28 }}>
+          <h3 style={{ color: "#00ff41" }}>IDENTITY CONFIRMED</h3>
+          <p style={{ color: "#9fb3c8" }}>Welcome back, {match.names?.[0] || input}.</p>
+          <button
+            onClick={() => {
+              setHasCompleted(false);
+              setInput("");
+              setMatch(null);
+            }}
+            style={{
+              marginTop: 10,
+              background: "transparent",
+              border: "1px solid rgba(255,255,255,0.06)",
+              color: "#cfe8f5",
+              padding: "8px 12px",
+              borderRadius: 8,
+              cursor: "pointer"
+            }}
+          >
+            LOG OUT
+          </button>
         </div>
       )}
     </MainContainer>
