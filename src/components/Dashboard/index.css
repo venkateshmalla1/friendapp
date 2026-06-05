@@ -1,0 +1,121 @@
+/* dashboard.css */
+
+/* Overall container */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #141414;
+  min-height: 100vh;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+  color: #ffffff;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Logout button */
+.btn-danger {
+  background-color: #e50914;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-danger:hover {
+  background-color: #f6121d;
+}
+
+/* Content area */
+.dashboard-content {
+  padding-top: 1rem;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  color: #b3b3b3;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+/* Card styling */
+.card {
+  background-color: #1f1f1f;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Card image */
+.card-img-top {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Card body */
+.card-body {
+  padding: 1rem;
+  color: #e5e5e5;
+}
+
+/* Card title */
+.card-title {
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Card text */
+.card-text {
+  color: #b3b3b3;
+  font-size: 0.95rem;
+}
+
+/* Quote styling */
+.blockquote {
+  border-left: 3px solid #e50914;
+  padding-left: 10px;
+  margin: 0.5rem 0;
+  color: #3f2b2b;
+  font-style: italic;
+}
+
+/* Relation text */
+.text-muted {
+  color: #999 !important;
+}
+
+/* Music button */
+.btn-outline-primary {
+  border-color: #e50914;
+  color: #e50914;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-primary:hover {
+  background-color: #e50914;
+  color: #fff;
+}

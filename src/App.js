@@ -1,6 +1,11 @@
-import React from 'react';
-import GreetUser from './components/GreetUser/GreetUser';
-import { createGlobalStyle } from 'styled-components';
+// src/App.js
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createGlobalStyle } from "styled-components";
+
+import GreetUser from "./components/GreetUser/GreetUser";
+import Login from "../components/Login";
+import Dashboard from "../components/Dashboard";
 
 // 1. Resetting default browser margins and setting the base theme
 const GlobalStyle = createGlobalStyle`
@@ -37,10 +42,14 @@ const GlobalStyle = createGlobalStyle`
 
 function App() {
   return (
-    <>
+    <Router>
       <GlobalStyle />
-      <GreetUser />
-    </>
+      <Routes>
+        <Route exact path="/" element={<GreetUser />} />
+        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   );
 }
 
