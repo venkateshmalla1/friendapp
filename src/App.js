@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 
 import GreetUser from "./components/GreetUser/GreetUser";
-import Login from "../components/Login";
-import Dashboard from "../components/Dashboard";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 
 // 1. Resetting default browser margins and setting the base theme
 const GlobalStyle = createGlobalStyle`
