@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllPeople } from "../../api";
+import FormReg from "../FormReg";
 import "./index.css";
 
 const apiConstraints = {
@@ -14,6 +15,7 @@ const apiConstraints = {
 const Dashboard = () => {
   const [people, setPeople] = useState([]);
   const [apiStatus, setApiStatus] = useState(apiConstraints.initial);
+  const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -48,15 +50,35 @@ const Dashboard = () => {
     fetchPeople();
   }, [navigate]);
 
+  const handlePersonAdded = (newPerson) => {
+    setPeople((currentPeople) => [...currentPeople, newPerson]);
+    setShowForm(false);
+  };
+
   return (
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
         <h2>Dashboard</h2>
-        <button type="button" className="btn btn-danger button" onClick={handleLogout}>
-          Logout
-        </button>
+        <div>
+          <button
+            type="button"
+            className="btn btn-primary me-2"
+            onClick={() => setShowForm((isVisible) => !isVisible)}
+          >
+            {showForm ? "Close form" : "Add person"}
+          </button>
+          <button type="button" className="btn btn-danger button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </header>
+
+      {showForm && (
+        <section className="dashboard-content mb-4">
+          <FormReg onSuccess={handlePersonAdded} />
+        </section>
+      )}
 
       {/* API states */}
       {apiStatus === apiConstraints.error && (
